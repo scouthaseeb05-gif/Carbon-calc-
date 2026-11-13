@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carbon Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--card:rgba(255,255,255,.85);--ink:#17322a;--mute:#5f7a6d;--line:#cdeedb;--acc:#86d9a6;--accink:#0b3d24;--ok:#2f9e61;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 48px;position:relative;z-index:1}
+h1{font-size:2.2rem;font-weight:800;margin:16px 0 4px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;flex:none}
+h2{font-size:1.2rem;margin:0 0 12px}
+.sub{color:var(--mute);margin:0 0 16px}
+.top{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:16px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.grid .card,.top .card{margin:0}
+.lbl{color:var(--mute);font-size:.85rem}
+.val{font-size:1.7rem;font-weight:800}
+.charts{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.cbox{position:relative;height:240px}
+.form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end}
+label{display:grid;gap:4px;font-size:.85rem;color:var(--mute)}
+input,select,textarea{font:inherit;padding:9px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);width:100%}
+button{font:inherit;font-weight:600;background:var(--acc);color:var(--accink);border:0;border-radius:8px;padding:10px 16px;cursor:pointer}
+button.ghost{background:transparent;color:#2f8f5b;border:1px solid var(--acc);padding:6px 10px}
+.tw{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.empty{color:var(--mute);padding:12px 0}
+.bar{height:16px;background:var(--line);border-radius:99px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--acc);transition:width .5s}
+.pct{text-align:right;font-weight:800;margin:6px 0 14px}
+.ch{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.ch h3{margin:0 0 2px;font-size:1rem}
+.ch p{margin:0 0 10px;color:var(--mute);font-size:.9rem}
+.row{display:grid;gap:8px}
+.done{color:var(--ok);font-weight:700}
+.cert{border:2px solid var(--acc);border-radius:12px;padding:16px;text-align:center;margin-top:12px}
+.cert[hidden]{display:none}
+.ins li{margin-bottom:6px}
+.chat{height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;margin-bottom:10px}
+.m{max-width:85%;padding:8px 12px;border-radius:12px;margin-bottom:8px;white-space:pre-wrap}
+.m.u{background:var(--acc);color:var(--accink);margin-left:auto}
+.m.b{background:#eef9f2}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.send{display:grid;grid-template-columns:1fr auto;gap:8px}
+.fb{border-bottom:1px solid var(--line);padding:10px 0}
+.stars{color:#e0a526;letter-spacing:2px}
+.note{color:var(--mute);font-size:.82rem}
+.made{color:var(--mute);font-size:.9rem;font-weight:600}
+.x{padding:2px 9px;border-radius:50%;font-size:1rem;line-height:1.3}
+.red{border-top:1px solid var(--line);padding:10px 0}
+.red ul{margin:6px 0 6px 18px;padding:0}
+button:disabled{opacity:.5;cursor:not-allowed}
+a{color:#2f8f5b}
+.aib{border-top:1px solid var(--line);padding-top:10px;white-space:pre-wrap}
+footer{color:var(--mute);font-size:.85rem;text-align:center;margin-top:24px}
+.leaf{position:fixed;top:-40px;pointer-events:none;z-index:0;animation:fall linear infinite}
+@keyframes fall{0%{transform:translate3d(0,-40px,0) rotate(0)}50%{transform:translate3d(45px,55vh,0) rotate(180deg)}100%{transform:translate3d(-25px,112vh,0) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.leaf{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="made">Made by Haseeb Moiz</div>
+  <h1><svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><g fill="#86d9a6"><path d="M24 22c-6 0-10 5-10 11 0 6 4 11 10 11s10-5 10-11c0-6-4-11-10-11z"/><circle cx="14" cy="15" r="3.6"/><circle cx="22" cy="10" r="3.6"/><circle cx="30.5" cy="10.5" r="3.4"/><circle cx="37" cy="16" r="3"/></g></svg>Carbon Calculator</h1>
+  <p class="sub">Log what you do each day, see your footprint, and get personal coaching to reduce it.</p>
+
+  <div class="top">
+    <div class="card">
+      <div class="lbl">Account</div>
+      <div id="acOut"><div class="row">
+        <input id="acName" placeholder="Your name" maxlength="40">
+        <input id="acMail" type="email" placeholder="Email" maxlength="80">
+        <button id="acNew" type="button">Create account</button></div></div>
+      <div class="note" id="acNote">Accounts are saved on this device only.</div>
+    </div>
+    <div class="card">
+      <label>Your country<select id="country"></select></label>
+      <div class="note" id="cNote"></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="lbl">Total emissions</div><div class="val" id="tE">0</div><div class="lbl">kg CO₂</div></div>
+    <div class="card"><div class="lbl">Total offset</div><div class="val" id="tO">0</div><div class="lbl">kg CO₂</div></div>
+    <div class="card"><div class="lbl">Net emissions</div><div class="val" id="tN">0</div><div class="lbl">kg CO₂</div></div>
+    <div class="card"><div class="lbl">Daily average</div><div class="val" id="tD">0</div><div class="lbl" id="tDc">kg CO₂ per day</div></div>
+  </div>
+
+  <div class="card"><h2>Your insights</h2><ul class="ins" id="ins"></ul><div id="red"></div>
+    <div class="aib" id="aiBox" hidden><strong>AI tips for you</strong> <button class="ghost" id="aiBtn" type="button">Refresh</button><div id="aiTips"></div></div></div>
+
+  <div class="charts">
+    <div class="card"><h2>Emissions by category</h2><div class="cbox"><canvas id="cB"></canvas></div></div>
+    <div class="card"><h2>Emissions per day</h2><div class="cbox"><canvas id="cT"></canvas></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Log an activity</h2>
+    <div class="form">
+      <label>What did you do?<select id="cat"></select></label>
+      <label id="itL">Type<select id="it"></select></label>
+      <label><span id="qL">Hours</span><input id="qty" type="number" min="0" step="any"></label>
+      <label>Date<input id="dt" type="date"></label>
+      <button id="add" type="button">Add activity</button>
+    </div>
+    <div class="note" id="fNote"></div>
+    <div class="tw"><table>
+      <thead><tr><th>Date</th><th>Category</th><th>Activity</th><th>Amount</th><th>CO₂ (kg)</th><th></th></tr></thead>
+      <tbody id="tb"></tbody></table>
+      <div class="empty" id="em">No activities yet. Add your first one above.</div></div>
+  </div>
+
+  <div class="card" id="challenges">
+    <h2>15-day green challenge</h2>
+    <p class="sub" style="margin-bottom:8px">Pick any of these actions and log one proof every day for 15 days:</p>
+    <ul class="ins">
+      <li>Plan and plant trees</li>
+      <li>Use public transport, cycle or walk</li>
+      <li>Eat vegetarian meals</li>
+      <li>Switch off unused lights and appliances</li>
+      <li>Avoid single-use plastic</li>
+      <li>Use the AC less, or set it to 24 to 26 °C</li>
+    </ul>
+    <div id="chBody"></div>
+    <div class="cert">
+      <label>Name on certificate<input id="nm" type="text" maxlength="40"></label><p></p>
+      <button type="button" id="claim" disabled>Claim your certificate</button>
+      <div class="note" id="claimNote">Available only after you complete all 15 days of proof.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Your AI coach</h2>
+    <div class="chips" id="chips"></div>
+    <div class="chat" id="chat"></div>
+    <div class="send"><input id="q" placeholder="Ask how to lower your footprint" maxlength="300"><button id="go" type="button">Send</button></div>
+    <div class="note" id="aiNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>Feedback and testimonials</h2>
+    <div class="form">
+      <label>Name<input id="fbName" maxlength="40"></label>
+      <label>Rating<select id="fbR"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+      <label style="grid-column:1/-1">Your feedback<textarea id="fbT" rows="3" maxlength="400"></textarea></label>
+      <button id="fbGo" type="button">Share feedback</button>
+    </div>
+    <div class="note" id="fbNote"></div>
+    <div id="fbList"></div>
+  </div>
+  <footer>Made by Haseeb Moiz</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function load(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function fmt(n){return (Math.round(n*10)/10).toLocaleString()}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+/* Countries: grid kg CO2 per kWh, average kg CO2 per person per day (approximate) */
+var CO={IN:["India",.71,5.5],US:["United States",.37,40],GB:["United Kingdom",.21,14],DE:["Germany",.35,20],CN:["China",.58,21],AU:["Australia",.66,42],CA:["Canada",.13,40],FR:["France",.05,12],BR:["Brazil",.08,6.5],JP:["Japan",.46,22],AE:["United Arab Emirates",.4,55],PK:["Pakistan",.45,3.7],XX:["Other / global average",.45,13]};
+var TZ={"Asia/Kolkata":"IN","Asia/Calcutta":"IN","America/New_York":"US","America/Chicago":"US","America/Los_Angeles":"US","Europe/London":"GB","Europe/Berlin":"DE","Asia/Shanghai":"CN","Australia/Sydney":"AU","America/Toronto":"CA","Europe/Paris":"FR","America/Sao_Paulo":"BR","Asia/Tokyo":"JP","Asia/Dubai":"AE","Asia/Karachi":"PK"};
+function detect(){
+  try{var m=(navigator.language||"").split("-")[1];if(m&&CO[m.toUpperCase()])return m.toUpperCase()}catch(e){}
+  try{var t=Intl.DateTimeFormat().resolvedOptions().timeZone;if(TZ[t])return TZ[t]}catch(e){}
+  return "XX";
+}
+
+/* Activities: kg CO2 per unit. g = grid factor */
+var CATS={
+ travel:{n:"Travel",u:"Hours travelled",it:{"Car (petrol)":6.8,"Car (diesel)":6.2,"Electric car":function(g){return 40*.2*g},"Motorbike or scooter":3.2,"Bus":2.2,"Metro or train":1.4,"Auto-rickshaw or taxi":5,"Bicycle or walking":0}},
+ energy:{n:"Home electricity",u:"Hours used",it:{"Air conditioner":function(g){return 1.5*g},"Room heater":function(g){return 2*g},"Fan":function(g){return .075*g},"Lights":function(g){return .06*g},"TV or computer":function(g){return .15*g},"Washing machine":function(g){return .5*g},"Water heater":function(g){return 2*g}}},
+ cooking:{n:"Cooking",u:"Hours of cooking",it:{"Gas stove":1.0,"Induction or electric stove":function(g){return 1.8*g}}},
+ flights:{n:"Flights",u:"Hours flown",it:{"Flight (any)":110}},
+ food:{n:"Food",u:"Number of meals",it:{"Meat meal":3.3,"Vegetarian meal":.9,"Vegan meal":.5}},
+ offset:{n:"Offsets",u:"Trees planted",it:{"Tree planted":-21}}
+};
+var COL=["#6fcf97","#a8e6bf","#cfeeb0","#9fd8c8","#c7e9a0","#7fd1b0"];
+var TIPS={travel:"Swap one car trip a day for the metro, a bus or a bicycle.",energy:"Set your AC to 24 to 26 °C and switch off devices left on standby.",cooking:"Use lids and a pressure cooker to cut cooking time and fuel.",flights:"Choose trains for short trips and bundle your travel to fly less.",food:"Replace two meat meals a week with vegetarian ones."};
+
+/* Accounts (this device only) */
+var profiles=load("cc_profiles",[]),cur=load("cc_current",null);
+var data;
+function loadData(){var d=load("cc_data_"+(cur||"guest"),{});data={entries:[],chal:d.chal||null}}
+function saveData(){save("cc_data_"+(cur||"guest"),{chal:data.chal})}
+function me(){return profiles.filter(function(p){return p.id===cur})[0]}
+function renderAcc(){
+  var p=me(),o=$("acOut");
+  if(p){o.innerHTML="<div class='val' style='font-size:1.2rem'>"+esc(p.name)+"</div><div class='note'>"+esc(p.email)+"</div><button class='ghost' id='acOutBtn' type='button'>Sign out</button>";
+    $("acOutBtn").onclick=function(){cur=null;save("cc_current",null);loadData();renderAcc();renderAll()};
+    $("fbName").value=p.name;
+  }else{
+    o.innerHTML="<div class='row'><input id='acName' placeholder='Your name' maxlength='40'><input id='acMail' type='email' placeholder='Email' maxlength='80'><button id='acNew' type='button'>Create account</button></div>";
+    $("acNew").onclick=newAcc;
+  }
+}
+function newAcc(){
+  var n=$("acName").value.trim(),e=$("acMail").value.trim();
+  if(!n||!/^\S+@\S+\.\S+$/.test(e)){$("acNote").textContent="Enter your name and a valid email.";return}
+  var ex=profiles.filter(function(p){return p.email.toLowerCase()===e.toLowerCase()})[0];
+  var p=ex||{id:"u"+Date.now(),name:n,email:e};
+  if(!ex)profiles.push(p);
+  cur=p.id;save("cc_profiles",profiles);save("cc_current",cur);loadData();renderAcc();renderAll();
+}
+
+/* Country */
+var cc=load("cc_country",null)||detect();
+var cs=$("country");
+Object.keys(CO).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=CO[k][0];cs.appendChild(o)});
+cs.value=cc;
+cs.onchange=function(){cc=cs.value;save("cc_country",cc);renderAll()};
+function g(){return CO[cc][1]}
+function factor(cat,item){var f=CATS[cat].it[item];return typeof f==="function"?f(g()):f}
+
+/* Form */
+var catS=$("cat"),itS=$("it");
+Object.keys(CATS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=CATS[k].n;catS.appendChild(o)});
+function fillItems(){
+  itS.innerHTML="";Object.keys(CATS[catS.value].it).forEach(function(n){var o=document.createElement("option");o.textContent=n;itS.appendChild(o)});
+  $("qL").textContent=CATS[catS.value].u;
+}
+catS.onchange=fillItems;fillItems();
+$("dt").valueAsDate=new Date();
+$("add").onclick=function(){
+  var q=parseFloat($("qty").value);
+  if(isNaN(q)||q<=0){$("fNote").textContent="Enter how many "+CATS[catS.value].u.toLowerCase()+".";return}
+  var f=factor(catS.value,itS.value);
+  data.entries.push({id:Date.now(),cat:catS.value,item:itS.value,qty:q,date:$("dt").value,co2:q*f});
+  saveData();$("qty").value="";$("fNote").textContent="";renderAll();clearTimeout(aiT);aiT=setTimeout(aiTips,600);
+};
+
+/* Render */
+var cB,cT;
+function stats(){
+  var em=0,off=0,by={},day={},ds=[];
+  data.entries.forEach(function(e){
+    if(e.co2>0){em+=e.co2;by[e.cat]=(by[e.cat]||0)+e.co2;day[e.date]=(day[e.date]||0)+e.co2;ds.push(e.date)}else off+=-e.co2;
+  });
+  ds.sort();
+  var span=1;if(ds.length){span=Math.max(1,Math.round((new Date(ds[ds.length-1])-new Date(ds[0]))/864e5)+1)}
+  return{em:em,off:off,by:by,day:day,avg:em/span,span:span};
+}
+function renderAll(){
+  var tb=$("tb");tb.innerHTML="";
+  data.entries.slice().sort(function(a,b){return b.date.localeCompare(a.date)||b.id-a.id}).forEach(function(e){
+    var tr=document.createElement("tr");
+    [e.date,CATS[e.cat].n,e.item,e.qty,fmt(e.co2)].forEach(function(t){var td=document.createElement("td");td.textContent=t;tr.appendChild(td)});
+    var td=document.createElement("td"),b=document.createElement("button");b.className="ghost x";b.textContent="✕";b.title="Remove this entry";b.setAttribute("aria-label","Remove this entry");
+    b.onclick=function(){data.entries=data.entries.filter(function(x){return x.id!==e.id});saveData();renderAll()};
+    td.appendChild(b);tr.appendChild(td);tb.appendChild(tr);
+  });
+  $("em").hidden=data.entries.length>0;
+  var s=stats();
+  $("tE").textContent=fmt(s.em);$("tO").textContent=fmt(s.off);$("tN").textContent=fmt(s.em-s.off);$("tD").textContent=fmt(s.avg);
+  $("cNote").textContent=(cs.value===detect()&&!load("cc_country",null)?"Detected from your device. ":"")+"Grid: "+g()+" kg CO₂ per kWh. Average person: "+CO[cc][2]+" kg CO₂ per day (approximate).";
+  $("tDc").textContent="kg CO₂ per day";
+  insights(s);reduce(s);charts(s);renderCh();
+}
+function insights(s){
+  var ul=$("ins");ul.innerHTML="";
+  function li(t){var l=document.createElement("li");l.textContent=t;ul.appendChild(l)}
+  if(!data.entries.length){li("Log your first activity to see personal insights.");return}
+  var avgC=CO[cc][2],r=s.avg/avgC;
+  li("You average "+fmt(s.avg)+" kg CO₂ per day, which is "+(r>1?fmt((r-1)*100)+"% above":fmt((1-r)*100)+"% below")+" the average person in "+CO[cc][0]+" ("+avgC+" kg).");
+  var ks=Object.keys(s.by).sort(function(a,b){return s.by[b]-s.by[a]});
+  if(ks.length){var t=ks[0];li(CATS[t].n+" is your biggest source, at "+Math.round(s.by[t]/s.em*100)+"% of emissions. "+TIPS[t])}
+  if(ks.length>1)li("Your second biggest source is "+CATS[ks[1]].n.toLowerCase()+" ("+Math.round(s.by[ks[1]]/s.em*100)+"%).");
+  var trees=Math.ceil(Math.max(0,s.em-s.off)/21);
+  li(trees>0?"About "+trees+" tree"+(trees>1?"s":"")+" growing for a year would absorb your remaining net emissions.":"Your offsets cover your logged emissions. Keep it up.");
+}
+function charts(s){
+  if(!window.Chart)return;
+  var ks=Object.keys(s.by);
+  if(cB)cB.destroy();
+  cB=new Chart($("cB"),{type:"doughnut",data:{labels:ks.map(function(k){return CATS[k].n}),datasets:[{data:ks.map(function(k){return s.by[k]}),backgroundColor:COL,borderWidth:0}]},options:{maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+  var ds=Object.keys(s.day).sort();
+  if(cT)cT.destroy();
+  cT=new Chart($("cT"),{type:"bar",data:{labels:ds,datasets:[{label:"kg CO₂",data:ds.map(function(x){return s.day[x]}),backgroundColor:COL[0],borderRadius:6}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+}
+
+/* 15-day challenge */
+var DAYS=15;
+function ymd(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(x<10?"0":"")+x}
+function today(){return ymd(new Date())}
+function dayOf(start,date){return Math.round((new Date(date+"T12:00:00")-new Date(start+"T12:00:00"))/864e5)+1}
+function pc(){return data.chal?Object.keys(data.chal.proofs).length:0}
+function prog(){return Math.round(pc()/DAYS*100)}
+var pfFile=null,pfBusy=false;
+function readImg(file){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){res(im)};im.onerror=rej;im.src=fr.result};fr.onerror=rej;fr.readAsDataURL(file)})}
+function scaled(im,max){var r=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext("2d").drawImage(im,0,0,c.width,c.height);return c}
+function toBlob(c){return new Promise(function(res){c.toBlob(res,"image/jpeg",.85)})}
+function sha(file){try{return file.arrayBuffer().then(function(b){return crypto.subtle.digest("SHA-256",b)}).then(function(d){return Array.prototype.map.call(new Uint8Array(d),function(x){return x.toString(16).padStart(2,"0")}).join("")}).catch(function(){return null})}catch(e){return Promise.resolve(null)}}
+var mpDet=null;
+function viaMP(canvas){
+  var B="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+  if(!mpDet)mpDet=import(B+"/vision_bundle.mjs").then(function(m){
+    return m.FilesetResolver.forVisionTasks(B+"/wasm").then(function(fs){
+      return m.FaceDetector.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite"},runningMode:"IMAGE",minDetectionConfidence:.6});
+    });
+  });
+  return mpDet.then(function(d){return d.detect(canvas).detections.length>0}).catch(function(){mpDet=null;return undefined});
+}
+function faceCheck(canvas,blob){
+  var viaAI=function(){
+    if(!sample)return Promise.resolve(undefined);
+    return Promise.resolve(sample.limits?sample.limits():{images:true}).then(function(l){
+      if(!l||!l.images)return undefined;
+      return sample("Look at this photo. Reply with only the word YES if a real person's face is clearly visible in it (not a drawing, cartoon, or a photo of a screen or printed picture). Otherwise reply with only the word NO.",{images:[blob],cache:false,modelTier:"quick"}).then(function(r){return /^\s*yes/i.test(r.text)});
+    }).catch(function(){return undefined});
+  };
+  return viaAI().then(function(v){
+    if(v!==undefined)return v;
+    return viaMP(canvas).then(function(w){
+      if(w!==undefined)return w;
+      if("FaceDetector" in window){try{return new FaceDetector().detect(canvas).then(function(f){return f.length>0}).catch(function(){return null})}catch(e){}}
+      return null;
+    });
+  });
+}
+function pick(f){
+  var m=$("pfMsg");if(!f)return;
+  if(!/^image\//.test(f.type)){m.textContent="Please choose a photo.";return}
+  pfFile=f;
+  readImg(f).then(function(im){var c=scaled(im,160);$("pfPrev").src=c.toDataURL("image/jpeg",.7);$("pfPrev").hidden=false;m.textContent="Photo selected. Press Submit to add it as today's proof."}).catch(function(){pfFile=null;m.textContent="Could not read this photo. Please try another one."});
+}
+function renderCh(){
+  pfFile=null;pfBusy=false;
+  var b=$("chBody"),c=data.chal,n=pc(),h="";
+  var pr=me();if(pr&&!$("nm").value)$("nm").value=pr.name;
+  if(!c){
+    h="<button id='chAccept' type='button'>Accept challenge</button><div class='note'>You log one photo proof per day, and your face must be clearly visible in it. The challenge needs 15 days, so it cannot be finished in one day.</div>";
+  }else{
+    var d=dayOf(c.start,today()),done=n>=DAYS,expired=!done&&d>DAYS,p=prog();
+    h="<div class='bar'><div class='fill' style='width:"+p+"%'></div></div><div class='pct'>"+p+"%</div>";
+    h+="<p>"+(done?"All 15 days completed. You can now claim your certificate.":expired?"The 15 days are over and some days have no proof. Restart to try again.":"Day "+d+" of "+DAYS+" · "+n+" of "+DAYS+" proofs submitted")+"</p>";
+    if(!done&&!expired){
+      if(c.proofs[today()])h+="<p class='done'>Today proof saved. Come back tomorrow.</p>";
+      else h+="<div class='row'><input id='pfT' type='text' maxlength='120' placeholder='Add a short note (optional)'><div style='display:flex;gap:8px;flex-wrap:wrap'><button id='pfCamBtn' class='ghost' type='button'>Take a selfie</button><button id='pfGalBtn' class='ghost' type='button'>Choose from gallery</button></div><input id='pfCam' type='file' accept='image/*' capture='user' hidden><input id='pfGal' type='file' accept='image/*' hidden><img id='pfPrev' alt='Selected photo' hidden style='width:96px;height:96px;object-fit:cover;border-radius:10px'><button id='pfGo' type='button'>Submit proof for day "+d+"</button><div class='note' id='pfMsg'>Your photo must clearly show your face.</div></div>";
+    }
+    var ks=Object.keys(c.proofs).sort();
+    if(ks.length){h+="<div style='margin-top:12px'>";ks.forEach(function(k){var q=c.proofs[k],o=typeof q==="string"?{t:q}:q;h+="<div class='fb' style='display:flex;gap:10px;align-items:center'>"+(o.img?"<img src='"+o.img+"' alt='Proof photo' style='width:56px;height:56px;object-fit:cover;border-radius:8px'>":"")+"<div><strong>Day "+dayOf(c.start,k)+"</strong> <span class='note'>"+k+(o.v===false?" · face not auto-verified":"")+"</span><div>"+esc(o.t||"")+"</div></div></div>"});h+="</div>"}
+    h+="<p><button class='ghost' id='chRestart' type='button'>Restart challenge</button></p>";
+  }
+  b.innerHTML=h;
+  var a=$("chAccept");if(a)a.onclick=function(){data.chal={start:today(),proofs:{}};saveData();renderCh()};
+  if($("pfCamBtn")){
+    $("pfCamBtn").onclick=function(){$("pfCam").click()};
+    $("pfGalBtn").onclick=function(){$("pfGal").click()};
+    $("pfCam").onchange=function(){pick(this.files[0])};
+    $("pfGal").onchange=function(){pick(this.files[0])};
+  }
+  var g=$("pfGo");if(g)g.onclick=function(){
+    var m=$("pfMsg");
+    if(!pfFile){m.textContent="The proof has not been submitted yet. Please submit your proof (a photo with your face visible), then the progress bar will update.";return}
+    if(pfBusy)return;pfBusy=true;g.disabled=true;m.textContent="Checking your photo...";
+    var day=today(),note=($("pfT").value||"").trim(),file=pfFile;
+    Promise.all([readImg(file),sha(file)]).then(function(r){
+      var im=r[0],h=r[1];
+      var used=Object.keys(data.chal.proofs).some(function(k){var q=data.chal.proofs[k];return h&&q&&q.h===h});
+      if(used)throw "dup";
+      var big=scaled(im,800);
+      return toBlob(big).then(function(blob){return faceCheck(big,blob)}).then(function(ok){
+        if(ok===false)throw "noface";
+        data.chal.proofs[day]={t:note,img:scaled(im,160).toDataURL("image/jpeg",.6),v:ok===true,h:h};
+        saveData();renderCh();
+      });
+    }).catch(function(e){
+      pfBusy=false;g.disabled=false;
+      m.textContent=e==="dup"?"This photo was already used. Please take a new photo today.":e==="noface"?"Your face is not clearly visible in this photo. Please take a clear photo showing your face and submit again.":"Could not read this photo. Please try another one.";
+    });
+  };
+  var r=$("chRestart");if(r){var armed=false;r.onclick=function(){if(!armed){armed=true;r.textContent="Tap again to confirm restart";setTimeout(function(){armed=false;if(r.isConnected)r.textContent="Restart challenge"},4000);return}data.chal=null;saveData();renderCh()}}
+  $("claim").disabled=n<DAYS;
+}
+$("claim").onclick=function(){
+  if(pc()<DAYS)return;
+  var n=$("nm").value.trim();if(!n){$("claimNote").textContent="Enter your name first.";return}
+  var c=document.createElement("canvas");c.width=1200;c.height=850;var x=c.getContext("2d");
+  x.fillStyle="#fff";x.fillRect(0,0,1200,850);
+  x.strokeStyle="#6fcf97";x.lineWidth=14;x.strokeRect(30,30,1140,790);x.lineWidth=3;x.strokeRect(55,55,1090,740);
+  x.textAlign="center";x.fillStyle="#2f8f5b";x.font="bold 58px Georgia, serif";x.fillText("Certificate of Appreciation",600,190);
+  x.fillStyle="#333";x.font="28px Georgia, serif";x.fillText("This certificate is proudly presented to",600,290);
+  x.fillStyle="#2f8f5b";x.font="italic bold 72px Georgia, serif";x.fillText(n,600,400);
+  x.fillStyle="#333";x.font="28px Georgia, serif";
+  x.fillText("for completing the 15-day Green Challenge.",600,490);
+  x.fillText("Thank you for helping build a cleaner future.",600,540);
+  x.font="24px Georgia, serif";x.fillText("Carbon Calculator · Made by Haseeb Moiz",600,710);x.fillText(new Date().toLocaleDateString(),600,750);
+  c.toBlob(function(blob){
+    function fb(){var a=document.createElement("a");a.download="Appreciation-Certificate.png";a.href=URL.createObjectURL(blob);a.click()}
+    fb();
+  },"image/png");
+};
+
+/* Reduction tips per category + AI tips */
+var TIPS2={
+ travel:["Replace one car or bike trip a day with the metro, a bus, cycling or walking.","Carpool or share rides for regular trips.","Avoid idling and keep tyres inflated to save fuel."],
+ energy:["Set the AC to 24 to 26 °C and use a fan with it.","Switch off lights, TVs and chargers when not in use.","Switch to LED bulbs and energy-efficient appliances."],
+ cooking:["Use lids and a pressure cooker to cut cooking time.","Cook in batches instead of several small meals.","Try an induction stove if your electricity grid is clean."],
+ flights:["Take a train or bus for short trips.","Combine trips and fly less often.","Use video calls instead of flying for meetings."],
+ food:["Replace a few meat meals each week with vegetarian ones.","Plan meals and freeze leftovers to cut food waste.","Choose local and seasonal food."]
+};
+function reduce(s){
+  var box=$("red");box.innerHTML="";
+  var ks=Object.keys(s.by).sort(function(a,b){return s.by[b]-s.by[a]});
+  if(!ks.length)return;
+  var h=document.createElement("h3");h.textContent="How to reduce each category";h.style.margin="14px 0 0";box.appendChild(h);
+  ks.forEach(function(k){
+    var d=document.createElement("div");d.className="red";
+    var t=document.createElement("strong");t.textContent=CATS[k].n+" ("+fmt(s.by[k])+" kg CO₂)";d.appendChild(t);
+    var ul=document.createElement("ul");
+    (TIPS2[k]||[]).forEach(function(x){var l=document.createElement("li");l.textContent=x;ul.appendChild(l)});d.appendChild(ul);
+    var a=document.createElement("a");a.href="https://www.google.com/search?q="+encodeURIComponent("how to reduce "+CATS[k].n.toLowerCase()+" carbon footprint");
+    a.target="_blank";a.rel="noopener noreferrer";a.textContent="Search on Google";d.appendChild(a);
+    box.appendChild(d);
+  });
+}
+var aiT,aiTok=0;
+function aiTips(){
+  if(!sample||!data.entries.length){$("aiBox").hidden=true;return}
+  $("aiBox").hidden=false;var id=++aiTok,o=$("aiTips");o.textContent="Generating tips...";
+  sample("You are a carbon-footprint coach in a web app. Using this data, give 2 specific, practical ways to reduce each category that has emissions, tailored to the country. Plain English, no markdown, under 170 words. "+ctx(),{cache:false}).then(function(r){if(id===aiTok)o.textContent=r.text}).catch(function(){if(id===aiTok)o.textContent="AI tips are unavailable right now. See the tips above."});
+}
+$("aiBtn").onclick=aiTips;
+
+/* AI coach */
+var sample=null,hist=[];
+var CHIPS=["How can I lower my footprint?","Explain my insights","Which challenge should I do next?","Give me a 7-day plan"];
+CHIPS.forEach(function(t){var b=document.createElement("button");b.className="ghost";b.textContent=t;b.onclick=function(){$("q").value=t;ask()};$("chips").appendChild(b)});
+function addMsg(t,c){var m=document.createElement("div");m.className="m "+c;m.textContent=t;$("chat").appendChild(m);$("chat").scrollTop=1e6;return m}
+addMsg("Hi! I am your carbon coach. Log some activities, then ask me how to cut your footprint and finish your challenges.","b");
+function ctx(){
+  var s=stats();
+  return "Country: "+CO[cc][0]+". Average person there: "+CO[cc][2]+" kg CO2/day. User daily average: "+fmt(s.avg)+" kg CO2/day. Total emissions "+fmt(s.em)+" kg, offsets "+fmt(s.off)+" kg. By category (kg): "+JSON.stringify(s.by)+". 15-day challenge: "+(data.chal?pc()+" of 15 daily proofs submitted":"not started")+".";
+}
+function local(q){
+  var s=stats(),ks=Object.keys(s.by).sort(function(a,b){return s.by[b]-s.by[a]});
+  if(!ks.length)return "Log a few activities first and I can tailor advice. Meanwhile, start with the Public transport challenge.";
+  return "Your biggest source is "+CATS[ks[0]].n.toLowerCase()+". "+TIPS[ks[0]]+" Then finish your open challenges: accepting and submitting proof moves your progress bar toward the certificate.";
+}
+function ask(){
+  var q=$("q").value.trim();if(!q)return;$("q").value="";
+  addMsg(q,"u");hist.push({role:"user",content:q});
+  var m=addMsg("Thinking...","b");
+  if(!sample){m.textContent=local(q);hist.push({role:"assistant",content:m.textContent});return}
+  var input=[{role:"user",content:"You are a friendly carbon-footprint coach inside a web app. Give short, practical, encouraging advice in plain English, tailored to this data. Max 150 words. "+ctx()}].concat(hist.slice(-8));
+  if(input[1]&&input[1].role==="user"){input=[{role:"user",content:input[0].content+"\n\nQuestion: "+input[1].content}].concat(input.slice(2))}
+  sample(input,{cache:false,onText:function(o){m.textContent=o.text;$("chat").scrollTop=1e6}}).then(function(r){m.textContent=r.text;hist.push({role:"assistant",content:r.text})}).catch(function(e){m.textContent=local(q)});
+}
+$("go").onclick=ask;$("q").addEventListener("keydown",function(e){if(e.key==="Enter")ask()});
+
+/* Feedback (shared when the page runtime allows, otherwise this device) */
+var fdb=null,uid=null,localFb=load("cc_feedback",[]),shared=[];
+function stars(n){return "★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n)}
+function renderFb(){
+  var list=$("fbList");list.innerHTML="";
+  var all=shared.concat(localFb).sort(function(a,b){return (b.ts||0)-(a.ts||0)});
+  if(!all.length){list.innerHTML="<div class='empty'>No feedback yet. Be the first to share.</div>";return}
+  all.forEach(function(f){
+    var d=document.createElement("div");d.className="fb";
+    d.innerHTML="<div class='stars'></div><div></div><div class='note'></div>";
+    d.children[0].textContent=stars(f.rating);d.children[1].textContent=f.text;
+    d.children[2].textContent="by "+(f.name||"Anonymous")+" · "+new Date(f.ts).toLocaleDateString();
+    list.appendChild(d);
+  });
+}
+$("fbGo").onclick=function(){
+  var t=$("fbT").value.trim(),n=$("fbName").value.trim()||"Anonymous",r=parseInt($("fbR").value,10);
+  if(t.length<3){$("fbNote").textContent="Write a few words of feedback first.";return}
+  var item={name:n,rating:r,text:t,ts:Date.now()};
+  function local_(){localFb.push(item);save("cc_feedback",localFb);renderFb()}
+  if(fdb&&uid){fdb.collection("feedback").doc(uid).set(item).then(function(){$("fbNote").textContent="Thanks! Your feedback is shared."}).catch(function(){local_();$("fbNote").textContent="Saved on this device."})}
+  else{local_();$("fbNote").textContent="Saved on this device."}
+  $("fbT").value="";
+};
+$("fbNote").textContent="";
+renderFb();
+$("aiNote").textContent="Showing quick tips.";
+
+/* Falling leaves */
+(function(){
+  var tones=["#86d9a6","#a8e6bf","#c7eba5","#9fdcb8"];
+  for(var i=0;i<18;i++){
+    var s=18+Math.random()*22,el=document.createElement("div");
+    el.className="leaf";el.style.left=(Math.random()*100)+"vw";el.style.width=el.style.height=s+"px";
+    el.style.opacity=(.45+Math.random()*.4).toFixed(2);el.style.animationDuration=(10+Math.random()*10)+"s";el.style.animationDelay=(-Math.random()*18)+"s";
+    el.innerHTML='<svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M12 2C6 6 4 12 6 20c6-1 12-5 12-12 0-2-1-4-6-6z" fill="'+tones[i%4]+'"/><path d="M7 19C10 14 13 10 16 7" stroke="#fff" stroke-width="1" fill="none" opacity=".7"/></svg>';
+    document.body.appendChild(el);
+  }
+})();
+
+loadData();renderAcc();renderAll();renderCh();
+})();
+</script>
+</body>
+</html>
